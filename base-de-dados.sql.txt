@@ -1,0 +1,632 @@
+CREATE DATABASE Grupo02;
+GO
+
+USE Grupo02;
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Tipo_Utilizador]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE Tipo_Utilizador (
+        id_role INT PRIMARY KEY IDENTITY(1, 1),
+        nome VARCHAR(100) NOT NULL
+    );
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Utilizador]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE Utilizador (
+        id_util INT PRIMARY KEY IDENTITY(1, 1),
+        user_name VARCHAR(100) NOT NULL,
+        password VARCHAR(100) NOT NULL,
+        id_role INT NOT NULL,
+        CONSTRAINT FK_Utilizador_Tipo_Utilizador FOREIGN KEY (id_role) REFERENCES Tipo_Utilizador(id_role)
+    );
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Tipo_Cliente]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE Tipo_Cliente (
+        id_role INT PRIMARY KEY IDENTITY(1, 1),
+        nome VARCHAR(100) NOT NULL
+    );
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Cliente]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE Cliente (
+        id_cliente INT PRIMARY KEY IDENTITY(1, 1),
+        nome VARCHAR(100) NOT NULL,
+        nif VARCHAR(20) NOT NULL,
+        data_nasc DATE,
+        morada VARCHAR(100),
+        id_role INT,
+        CONSTRAINT FK_Tipo_Cliente FOREIGN KEY (id_role) REFERENCES Tipo_Cliente (id_role)
+    );
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Condutor]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE Condutor (
+        id_condutor INT PRIMARY KEY IDENTITY (1,1),
+        nome VARCHAR (100),
+        morada VARCHAR (100),
+        cc VARCHAR (20),
+        nr_cartaCondu VARCHAR (20),
+        data_inicio_carta DATE,
+        data_nasc DATE
+    );
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Marca]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE Marca (
+        id_marca INT PRIMARY KEY IDENTITY (1,1),
+        nome VARCHAR(100) 
+    );
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Modelo]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE Modelo (
+        id_modelo INT PRIMARY KEY IDENTITY (1,1),
+        nome VARCHAR(100),
+        id_marca INT NOT NULL,
+        CONSTRAINT FK_Modelo_Marca FOREIGN KEY (id_marca) REFERENCES Marca(id_marca)
+    );
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Veiculo]') AND type = 'U')
+BEGIN
+    CREATE TABLE Veiculo (
+        id_veiculo INT PRIMARY KEY IDENTITY (1,1),
+        matricula VARCHAR(100) CHECK (
+            matricula LIKE '[0-9][0-9]-[0-9][0-9]-[A-Z][A-Z]' OR
+            matricula LIKE '[0-9][0-9]-[A-Z][A-Z]-[0-9][0-9]' OR
+            matricula LIKE '[A-Z][A-Z]-[0-9][0-9]-[0-9][0-9]' OR
+			matricula LIKE '[A-Z][A-Z]-[0-9][0-9]-[A-Z][A-Z]'
+        ),
+        id_marca INT,
+        id_modelo INT NOT NULL,
+        cor VARCHAR(100) NOT NULL,
+        ano_fabrico INT CHECK (ano_fabrico BETWEEN 1900 AND YEAR(GETDATE())),
+        n_lugares INT,
+        estado BIT NOT NULL,
+        preco_dia DECIMAL,
+        CONSTRAINT FK_Veiculo_Modelo FOREIGN KEY (id_modelo) REFERENCES Modelo(id_modelo),
+        CONSTRAINT CK_Veiculo_Marca FOREIGN KEY (id_marca) REFERENCES Marca (id_marca)
+    );
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Reparacao]') AND type = 'U')
+BEGIN
+    CREATE TABLE Reparacao (
+        id_reparacao INT IDENTITY (1,1) PRIMARY KEY,
+        custo DECIMAL,
+        data_inicio DATE,
+        data_fim DATE,
+        id_veiculo INT NOT NULL,
+        CONSTRAINT FK_id_veiculo_reparacao FOREIGN KEY (id_veiculo) REFERENCES Veiculo (id_veiculo)
+    );
+END
+
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Tipo_Seguro]') AND type = 'U')
+BEGIN
+    CREATE TABLE Tipo_Seguro (
+        id_tipo_seguro INT IDENTITY (1,1) PRIMARY KEY,
+        nome VARCHAR (100) NOT NULL
+    );
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Seguro]') AND type = 'U')
+BEGIN
+    CREATE TABLE Seguro (
+        id_seguro INT IDENTITY (1,1) PRIMARY KEY,
+        tipo_seguro INT NOT NULL,
+        valor DECIMAL NOT NULL,
+        CONSTRAINT FK_Seguro_Tipo_Seguro FOREIGN KEY (tipo_seguro) REFERENCES Tipo_Seguro (id_tipo_seguro)
+    );
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Pagamento]') AND type = 'U')
+BEGIN
+    CREATE TABLE Pagamento (
+        id_pagamento INT IDENTITY (1,1) PRIMARY KEY,
+        tipo_pagamento VARCHAR(100) NOT NULL
+    );
+END
+
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Aluguer]') AND type = 'U')
+BEGIN
+    CREATE TABLE Aluguer (
+        id_reserva INT IDENTITY (1,1) PRIMARY KEY,
+        id_seguro INT NOT NULL,
+        id_veiculo INT NOT NULL,
+        id_cliente INT NOT NULL,
+        data_inicio DATE NOT NULL,
+        data_fim DATE NOT NULL,
+        valor DECIMAL NOT NULL,
+        id_condutor INT NOT NULL,
+        qnt_deposito DECIMAL NOT NULL,
+        custo_repa DECIMAL,
+        local_entrega VARCHAR(100) NOT NULL,
+        CONSTRAINT FK_Aluguer_Cliente FOREIGN KEY (id_cliente) REFERENCES Cliente (id_cliente),
+        CONSTRAINT FK_Aluguer_Seguro FOREIGN KEY (id_seguro) REFERENCES Seguro (id_seguro),
+        CONSTRAINT FK_Aluguer_Veiculo FOREIGN KEY (id_veiculo) REFERENCES Veiculo (id_veiculo),
+        CONSTRAINT FK_Aluguer_Condutor FOREIGN KEY (id_condutor) REFERENCES Condutor (id_condutor)
+    );
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Fatura]') AND type = 'U')
+BEGIN
+    CREATE TABLE Fatura (
+        id_fatura INT IDENTITY (1,1) PRIMARY KEY,
+        id_reserva INT NOT NULL,
+        id_utilizador INT NOT NULL,
+        custo_adc DECIMAL,
+        id_pagamento INT NOT NULL,
+        CONSTRAINT FK_Fatura_Reserva FOREIGN KEY (id_reserva) REFERENCES Aluguer (id_reserva),
+        CONSTRAINT FK_Fatura_Utilizador FOREIGN KEY (id_utilizador) REFERENCES Utilizador (id_util),
+        CONSTRAINT FK_Fatura_Pagamento FOREIGN KEY (id_pagamento) REFERENCES Pagamento (id_pagamento)
+    );
+END
+
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Recibo]') AND type = 'U')
+BEGIN
+    CREATE TABLE Recibo (
+        id_recibo INT IDENTITY (1,1) PRIMARY KEY,
+        fatura INT,
+        data_pagamento DATE,
+        CONSTRAINT CK_Fatura_Recibo FOREIGN KEY (fatura) REFERENCES Fatura (id_fatura)
+    );
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Conta_Corrente]') AND type = 'U')
+BEGIN
+    CREATE TABLE Conta_Corrente (
+        id_deposito INT IDENTITY (1,1) PRIMARY KEY,
+        id_cliente INT NOT NULL,
+        deposito DECIMAL,
+        data_deposito DATE,
+        CONSTRAINT CK_Conta_Cliente FOREIGN KEY (id_cliente) REFERENCES Cliente (id_cliente)
+    );
+END
+
+
+
+ALTER TABLE Utilizador ADD CONSTRAINT UC_user_name UNIQUE (user_name);
+
+
+ALTER TABLE Cliente ADD CONSTRAINT UC_nif UNIQUE (nif);
+
+
+ALTER TABLE Veiculo ADD CONSTRAINT UC_matricula UNIQUE (matricula);
+
+
+ALTER TABLE Seguro ADD CONSTRAINT UC_tipo_seguro UNIQUE (tipo_seguro);
+
+
+ALTER TABLE Recibo ADD CONSTRAINT FK_Recibo_Fatura FOREIGN KEY (fatura) REFERENCES Fatura (id_fatura);
+
+
+ALTER TABLE Conta_Corrente ADD CONSTRAINT FK_Conta_Corrente_Cliente FOREIGN KEY (id_cliente) REFERENCES Cliente (id_cliente);
+
+
+CREATE INDEX idx_user_name ON Utilizador (user_name);
+
+CREATE INDEX idx_nif ON Cliente (nif);
+
+CREATE INDEX idx_id_marca ON Veiculo (id_marca);
+CREATE INDEX idx_id_modelo ON Veiculo (id_modelo);
+CREATE INDEX idx_estado ON Veiculo (estado);
+
+CREATE INDEX idx_id_veiculo ON Reparacao (id_veiculo);
+CREATE INDEX idx_data_inicio ON Reparacao (data_inicio);
+
+CREATE INDEX idx_tipo_seguro ON Seguro (tipo_seguro);
+
+CREATE INDEX idx_id_cliente ON Aluguer (id_cliente);
+CREATE INDEX idx_id_veiculo ON Aluguer (id_veiculo);
+CREATE INDEX idx_data_inicio ON Aluguer (data_inicio);
+
+CREATE INDEX idx_id_reserva ON Fatura (id_reserva);
+CREATE INDEX idx_id_utilizador ON Fatura (id_utilizador);
+CREATE INDEX idx_id_pagamento ON Fatura (id_pagamento);
+
+CREATE INDEX idx_fatura ON Recibo (fatura);
+
+CREATE INDEX idx_id_cliente ON Conta_Corrente (id_cliente);
+
+GO
+
+
+-- View 1: Informações do Cliente e Aluguer:
+
+CREATE VIEW vw_InformacoesClienteAluguer AS
+SELECT c.nome AS nome_cliente, c.nif, c.morada, a.data_inicio, a.data_fim, a.valor
+FROM Cliente c
+INNER JOIN Aluguer a ON c.id_cliente = a.id_cliente;
+
+GO
+
+
+-- View 2: Informações do Veículo e Marca:
+
+CREATE VIEW vw_InformacoesVeiculoMarca AS
+SELECT v.matricula, v.cor, v.ano_fabrico, m.nome AS marca
+FROM Veiculo v
+INNER JOIN Marca m ON v.id_marca = m.id_marca;
+
+GO
+
+
+-- View 3: Detalhes do Aluguer com Informações Relacionadas:
+
+CREATE VIEW vw_DetalhesAluguer AS
+SELECT a.id_reserva, c.nome AS nome_cliente, v.matricula, v.cor, v.ano_fabrico,
+       m.nome AS marca, a.data_inicio, a.data_fim, a.valor,
+       ct.nome AS nome_condutor, ct.nr_cartaCondu, ct.data_inicio_carta
+FROM Aluguer a
+INNER JOIN Cliente c ON a.id_cliente = c.id_cliente
+INNER JOIN Veiculo v ON a.id_veiculo = v.id_veiculo
+INNER JOIN Marca m ON v.id_marca = m.id_marca
+INNER JOIN Condutor ct ON a.id_condutor = ct.id_condutor;
+
+GO
+
+
+-- Function 1: Obter Nome do Cliente
+
+CREATE FUNCTION ObterNomeCliente (@idCliente INT)
+RETURNS VARCHAR(100)
+AS
+BEGIN
+BEGIN
+		DECLARE @nomeCliente VARCHAR(100);
+		-- Verifica se o ID do cliente é válido
+		IF NOT EXISTS (SELECT 1 FROM Cliente WHERE id_cliente = @idCliente)
+		SELECT @nomeCliente = nome FROM Cliente WHERE id_cliente = @idCliente;
+	END;
+	RETURN @nomeCliente;
+END;
+
+GO
+
+
+-- Function 2: Calcular Idade do Condutor
+
+CREATE FUNCTION CalcularIdadeCondutor (@dataNasc DATE)
+RETURNS INT
+AS
+BEGIN
+    DECLARE @idade INT;
+
+    -- Verifica se a data de nascimento é maior que a data atual
+
+    IF @dataNasc > GETDATE()
+    SET @idade = DATEDIFF(YEAR, @dataNasc, GETDATE());
+    RETURN @idade;
+END;
+
+GO
+
+
+-- Function 3: Verificar Disponibilidade do Veículo
+
+CREATE FUNCTION VerificarDisponibilidadeVeiculo (@idVeiculo INT, @dataInicio DATE, @dataFim DATE)
+RETURNS BIT
+AS
+BEGIN
+    DECLARE @disponivel BIT;
+
+    -- Verifica se as datas de início e fim são válidas
+    IF @dataFim < @dataInicio
+    SET @disponivel = (
+        SELECT CASE
+            WHEN EXISTS (
+                SELECT 1
+                FROM Aluguer
+                WHERE id_veiculo = @idVeiculo
+                AND (@dataInicio BETWEEN data_inicio AND data_fim OR @dataFim BETWEEN data_inicio AND data_fim)
+            )
+            THEN 0
+            ELSE 1
+        END
+    );
+    
+    RETURN @disponivel;
+END;
+
+GO
+
+
+-- Procedure 1: Consultar aluguer por data
+
+CREATE PROCEDURE ConsultarAluguerPorData
+    @dataInicio DATE,
+    @dataFim DATE
+AS
+BEGIN
+    BEGIN TRY
+        SELECT A.id_reserva, A.data_inicio, A.data_fim, V.matricula, C.nome AS cliente_nome
+        FROM Aluguer A
+        INNER JOIN Veiculo V ON A.id_veiculo = V.id_veiculo
+        INNER JOIN Cliente C ON A.id_cliente = C.id_cliente
+        WHERE A.data_inicio BETWEEN @dataInicio AND @dataFim;
+    END TRY
+    BEGIN CATCH
+        -- Tratamento de erro
+        DECLARE @errorMessage NVARCHAR(4000);
+        DECLARE @errorSeverity INT;
+        DECLARE @errorState INT;
+
+        SELECT 
+            @errorMessage = ERROR_MESSAGE(),
+            @errorSeverity = ERROR_SEVERITY(),
+            @errorState = ERROR_STATE();
+
+        -- Lançar o erro novamente para propagar para o contexto externo (throw)
+        THROW;
+    END CATCH;
+END;
+
+
+GO
+
+
+-- Procedure 2: Consultar veiculos disponiveis
+
+CREATE PROCEDURE ConsultarVeiculosDisponiveis
+    @dataInicio DATE,
+    @dataFim DATE
+AS
+BEGIN
+    BEGIN TRY
+        SELECT V.id_veiculo, V.matricula, M.nome AS marca, MO.nome AS modelo
+        FROM Veiculo V
+        INNER JOIN Marca M ON V.id_marca = M.id_marca
+        INNER JOIN Modelo MO ON V.id_modelo = MO.id_modelo
+        WHERE V.estado = 1
+        AND V.id_veiculo NOT IN (
+            SELECT id_veiculo
+            FROM Aluguer
+            WHERE (@dataInicio BETWEEN data_inicio AND data_fim)
+                OR (@dataFim BETWEEN data_inicio AND data_fim)
+                OR (data_inicio BETWEEN @dataInicio AND @dataFim)
+                OR (data_fim BETWEEN @dataInicio AND @dataFim)
+        );
+    END TRY
+    BEGIN CATCH
+        -- Exemplo de tratamento de erro:
+        PRINT 'Ocorreu um erro durante a execução da consulta.';
+    END CATCH;
+END;
+
+
+GO
+
+
+-- Procedure 3: Registar Faturas
+
+CREATE PROCEDURE RegistrarFatura
+    @idReserva INT,
+    @idUtilizador INT,
+    @custoAdc DECIMAL,
+    @idPagamento INT
+AS
+BEGIN
+    BEGIN TRY
+        DECLARE @idFatura INT;
+
+        -- Inserir nova fatura
+        INSERT INTO Fatura (id_reserva, id_utilizador, custo_adc, id_pagamento)
+        VALUES (@idReserva, @idUtilizador, @custoAdc, @idPagamento);
+
+        -- Verificar se a inserção foi bem-sucedida
+        IF @@ROWCOUNT = 0
+        BEGIN
+            THROW 50001, 'Falha ao inserir a fatura.', 1;
+        END;
+
+        -- Obter o ID da fatura recém-inserida
+        SET @idFatura = SCOPE_IDENTITY();
+
+        -- Atualizar o registro de recibo com o ID da fatura
+        UPDATE Recibo SET fatura = @idFatura WHERE id_recibo = @idFatura;
+
+        -- Verificar se a atualização foi bem-sucedida
+        IF @@ROWCOUNT = 0
+        BEGIN
+            THROW 50002, 'Falha ao atualizar o registro de recibo.', 1;
+        END;
+
+        -- Retornar o ID da fatura gerada
+        SELECT @idFatura AS 'ID da Fatura';
+    END TRY
+    BEGIN CATCH
+
+        -- Exemplo de tratamento de erro:
+        PRINT 'Ocorreu um erro durante o registro da fatura.';
+        PRINT 'Número do erro: ' + CAST(ERROR_NUMBER() AS VARCHAR(10));
+        PRINT 'Mensagem de erro: ' + ERROR_MESSAGE();
+    END CATCH;
+END;
+
+
+GO
+
+
+-- Trigger 1: Atualizar a tabela Veiculo quando a tabela Marca é atualizada:
+
+CREATE TRIGGER AtualizarVeiculoEmAtualizacaoMarca
+ON Marca
+AFTER UPDATE
+AS
+BEGIN
+  BEGIN TRY
+    IF UPDATE(nome)
+    BEGIN
+      UPDATE Veiculo
+      SET matricula = Marca.nome
+      FROM Veiculo
+      INNER JOIN Marca ON Veiculo.id_marca = Marca.id_marca
+      INNER JOIN inserted ON Marca.id_marca = inserted.id_marca
+    END
+    ELSE
+    BEGIN
+      THROW 50003, 'A coluna "nome" não foi atualizada.', 1;
+    END
+  END TRY
+  BEGIN CATCH
+    -- Exemplo de tratamento de erro:
+    PRINT 'Ocorreu um erro durante a execução do gatilho AtualizarVeiculoEmAtualizacaoMarca.';
+    PRINT 'Número do erro: ' + CAST(ERROR_NUMBER() AS VARCHAR(10));
+    PRINT 'Mensagem de erro: ' + ERROR_MESSAGE();
+  END CATCH
+END;
+
+
+
+GO
+
+
+-- Trigger 2: Excluir linhas correspondentes na tabela Veiculo quando um registro é excluído da tabela Modelo:
+
+
+CREATE TRIGGER ExcluirVeiculoEmExclusaoModelo
+ON Modelo
+AFTER DELETE
+AS
+BEGIN
+  BEGIN TRY
+    DELETE FROM Veiculo
+    WHERE id_modelo IN (SELECT id_modelo FROM deleted)
+
+    -- Verifica se a exclusão afetou alguma linha na tabela Veiculo
+
+    IF @@ROWCOUNT = 0
+    BEGIN
+      THROW 50004, 'Nenhuma linha correspondente encontrada na tabela Veiculo.', 1;
+    END
+  END TRY
+  BEGIN CATCH
+
+    -- Exemplo de tratamento de erro:
+    PRINT 'Ocorreu um erro durante a execução do gatilho ExcluirVeiculoEmExclusaoModelo.';
+    PRINT 'Número do erro: ' + CAST(ERROR_NUMBER() AS VARCHAR(10));
+    PRINT 'Mensagem de erro: ' + ERROR_MESSAGE();
+  END CATCH
+END;
+
+
+GO
+
+-- Trigger 3: Atualizar o custo de reparação
+
+CREATE TRIGGER AtualizarEstadoVeiculo
+ON Aluguer
+AFTER INSERT
+AS
+BEGIN
+    BEGIN TRY
+        UPDATE Veiculo
+        SET estado = 0
+        FROM Veiculo
+        INNER JOIN inserted ON Veiculo.id_veiculo = inserted.id_veiculo;
+    END TRY
+    BEGIN CATCH
+        -- Lidar com exceções ou erros caso ocorram
+        SELECT ERROR_MESSAGE() AS ErrorMessage;
+    END CATCH
+END;
+
+
+
+GO
+
+
+-- Inserções para a tabela Tipo_Utilizador
+INSERT INTO Tipo_Utilizador (nome) VALUES ('Administrador');
+INSERT INTO Tipo_Utilizador (nome) VALUES ('Utilizador Regular');
+INSERT INTO Tipo_Utilizador (nome) VALUES ('Convidado');
+
+-- Inserções para a tabela Utilizador
+INSERT INTO Utilizador (user_name, password, id_role) VALUES ('admin', 'senha_admin', 1);
+INSERT INTO Utilizador (user_name, password, id_role) VALUES ('utilizador1', 'senha_utilizador1', 2);
+INSERT INTO Utilizador (user_name, password, id_role) VALUES ('convidado1', 'senha_convidado1', 3);
+
+-- Inserções na tabela Tipo_Cliente
+INSERT INTO Tipo_Cliente (nome) VALUES ('Cliente Particular');
+INSERT INTO Tipo_Cliente (nome) VALUES ('Cliente Empresa');
+INSERT INTO Tipo_Cliente (nome) VALUES ('Cliente VIP');
+
+-- Inserções na tabela Cliente
+INSERT INTO Cliente (nome, nif, data_nasc, morada, id_role) VALUES ('João Silva', '123456789', '1990-05-15', 'Rua A', 1);
+INSERT INTO Cliente (nome, nif, data_nasc, morada, id_role) VALUES ('Maria Santos Unip Lda', '500654321', NULL, 'Rua B', 2);
+INSERT INTO Cliente (nome, nif, data_nasc, morada, id_role) VALUES ('Pedro Alves', '132456789', '1995-07-22', 'Rua C', 3);
+
+-- Inserções na tabela Condutor
+INSERT INTO Condutor (nome, morada, cc, nr_cartaCondu, data_inicio_carta, data_nasc) VALUES ('João Silva', 'Rua A', '123456789', '987654321', '2015-01-01', '1990-05-15');
+INSERT INTO Condutor (nome, morada, cc, nr_cartaCondu, data_inicio_carta, data_nasc) VALUES ('Maria Santos', 'Rua B', '987654321', '123456789', '2010-06-01', '1985-12-03');
+INSERT INTO Condutor (nome, morada, cc, nr_cartaCondu, data_inicio_carta, data_nasc) VALUES ('Pedro Alves', 'Rua C', '555555555', '111111111', '2018-03-01', '1995-07-22');
+
+-- Inserções na tabela Marca
+INSERT INTO Marca (nome) VALUES ('Toyota');
+INSERT INTO Marca (nome) VALUES ('Ford');
+INSERT INTO Marca (nome) VALUES ('BMW');
+
+-- Inserções na tabela Modelo
+INSERT INTO Modelo (nome, id_marca) VALUES ('Corolla', 1);
+INSERT INTO Modelo (nome, id_marca) VALUES ('Mustang', 2);
+INSERT INTO Modelo (nome, id_marca) VALUES ('X5', 3);
+
+-- Inserções na tabela Veiculo
+INSERT INTO Veiculo (matricula, id_marca, id_modelo, cor, ano_fabrico, n_lugares, estado, preco_dia) VALUES ('12-AB-34', 1, 3, 'Azul', 2018, 5, 1, 50.00);
+INSERT INTO Veiculo (matricula, id_marca, id_modelo, cor, ano_fabrico, n_lugares, estado, preco_dia) VALUES ('98-XY-76', 2, 2, 'Vermelho', 2020, 4, 1, 60.00);
+INSERT INTO Veiculo (matricula, id_marca, id_modelo, cor, ano_fabrico, n_lugares, estado, preco_dia) VALUES ('AB-99-CD', 3, 1, 'Preto', 2019, 2, 1, 70.00);
+
+-- Inserções na tabela Reparação
+INSERT INTO Reparacao (custo, data_inicio, data_fim, id_veiculo)
+VALUES (150.00, '2023-06-10', '2023-06-12', 1);
+INSERT INTO Reparacao (custo, data_inicio, data_fim, id_veiculo)
+VALUES (200.00, '2023-06-08', '2023-06-09', 2);
+
+-- Inserções na tabela Tipo_Seguro
+INSERT INTO Tipo_Seguro (nome) VALUES ('Seguro Danos Próprios');
+INSERT INTO Tipo_Seguro (nome) VALUES ('Seguro Responsabilidade Civil');
+INSERT INTO Tipo_Seguro (nome) VALUES ('Seguro Quebra Isolada de Vidros');
+
+-- Inserções na tabela Seguro
+INSERT INTO Seguro (tipo_seguro, valor) VALUES (1, 1000.00);
+INSERT INTO Seguro (tipo_seguro, valor) VALUES (2, 500.00);
+INSERT INTO Seguro (tipo_seguro, valor) VALUES (3, 250.00);
+
+-- Inserções na tabela Pagamento
+INSERT INTO Pagamento (tipo_pagamento) VALUES ('Numerário');
+INSERT INTO Pagamento (tipo_pagamento) VALUES ('Transferência Bancária');
+INSERT INTO Pagamento (tipo_pagamento) VALUES ('Cartão de Crédito');
+
+-- Inserções na tabela Aluguer
+INSERT INTO Aluguer (id_seguro, id_veiculo, id_cliente, data_inicio, data_fim, valor, id_condutor, qnt_deposito, custo_repa, local_entrega)
+VALUES (1, 1, 1, '2023-01-01', '2023-01-10', 500.00, 1, 100.00, NULL, 'Local A');
+
+INSERT INTO Aluguer (id_seguro, id_veiculo, id_cliente, data_inicio, data_fim, valor, id_condutor, qnt_deposito, custo_repa, local_entrega)
+VALUES (2, 2, 2, '2023-02-15', '2023-02-25', 700.00, 2, 150.00, NULL, 'Local B');
+
+INSERT INTO Aluguer (id_seguro, id_veiculo, id_cliente, data_inicio, data_fim, valor, id_condutor, qnt_deposito, custo_repa, local_entrega)
+VALUES (1, 3, 3, '2023-03-01', '2023-03-10', 600.00, 3, 120.00, NULL, 'Local C');
+
+-- Inserções na tabela Fatura
+INSERT INTO Fatura (id_reserva, id_utilizador, custo_adc, id_pagamento) VALUES (1, 1, 20.00, 1);
+INSERT INTO Fatura (id_reserva, id_utilizador, custo_adc, id_pagamento) VALUES (2, 2, 15.50, 2);
+INSERT INTO Fatura (id_reserva, id_utilizador, custo_adc, id_pagamento) VALUES (3, 3, 10.75, 3);
+
+-- Inserções na tabela Recibo
+INSERT INTO Recibo (fatura, data_pagamento) VALUES (1, '2023-06-01');
+INSERT INTO Recibo (fatura, data_pagamento) VALUES (2, '2023-06-05');
+INSERT INTO Recibo (fatura, data_pagamento) VALUES (3, '2023-06-10');
+
+-- Inserções na tabela Conta_Corrente
+INSERT INTO Conta_Corrente (id_cliente, deposito, data_deposito) VALUES (2, 750.50, '2023-06-06');
