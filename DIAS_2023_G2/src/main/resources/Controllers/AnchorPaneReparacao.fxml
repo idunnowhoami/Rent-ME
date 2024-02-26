@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+
+<AnchorPane prefHeight="400.0" prefWidth="712.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.AnchorPaneReparacao">
+   <children>
+      <SplitPane dividerPositions="0.49748743718592964" layoutX="170.0" layoutY="82.0" orientation="VERTICAL" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <items>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+               <children>
+                  <GridPane layoutX="14.0" layoutY="50.0" prefHeight="120.0" prefWidth="436.0">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="213.0" minWidth="10.0" prefWidth="89.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="350.0" minWidth="10.0" prefWidth="347.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <Label prefHeight="17.0" prefWidth="69.0" text="Veículo:" />
+                        <Label text="Custo:" GridPane.rowIndex="1" />
+                        <Label text="Data início:" GridPane.rowIndex="2" />
+                        <Label text="Data fim:" GridPane.rowIndex="3" />
+                        <TextField fx:id="labeCusto" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <MenuButton fx:id="menuVeiculos" mnemonicParsing="false" prefHeight="25.0" prefWidth="148.0" text="Veículo" GridPane.columnIndex="1">
+                          <items>
+                            <MenuItem mnemonicParsing="false" text="Action 1" />
+                            <MenuItem mnemonicParsing="false" text="Action 2" />
+                          </items>
+                        </MenuButton>
+                        <DatePicker fx:id="LabelDataInicio" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <DatePicker fx:id="LabelDataFim" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                     </children>
+                  </GridPane>
+                  <Text layoutX="286.0" layoutY="19.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Reparar veículos" wrappingWidth="121.642578125">
+                     <font>
+                        <Font name="System Bold" size="14.0" />
+                     </font>
+                  </Text>
+                  <Button layoutX="469.0" layoutY="82.0" mnemonicParsing="false" prefHeight="88.0" prefWidth="105.0" text="Reparar" />
+               </children>
+            </AnchorPane>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+               <children>
+                  <TableView fx:id="tableViewVeiculo" layoutX="53.0" layoutY="-23.0" prefHeight="177.0" prefWidth="598.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <columns>
+                      <TableColumn prefWidth="98.0" text="ID do veículo" />
+                      <TableColumn prefWidth="101.0" text="Matrícula" />
+                        <TableColumn prefWidth="86.0" text="Modelo" />
+                        <TableColumn prefWidth="82.0" text="Cor" />
+                        <TableColumn prefWidth="129.0" text="Ano de fabricação" />
+                        <TableColumn minWidth="4.0" prefWidth="141.0" text="Número de lugares" />
+                        <TableColumn prefWidth="72.0" text="Estado" />
+                    </columns>
+                  </TableView>
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+   </children>
+</AnchorPane>

@@ -1,0 +1,155 @@
+CREATE TABLE Tipo_Utilizador (
+  id_role INT PRIMARY KEY IDENTITY(1, 1),
+  nome VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE Utilizador (
+  id_util INT PRIMARY KEY IDENTITY(1, 1),
+  user_name VARCHAR(100) NOT NULL,
+  password VARCHAR(100) NOT NULL,
+  id_role INT NOT NULL,
+  CONSTRAINT FK_Utilizador_Tipo_Utilizador FOREIGN KEY (id_role) REFERENCES Tipo_Utilizador(id_role)
+);
+
+CREATE TABLE Tipo_Cliente (
+  id_role INT PRIMARY KEY IDENTITY(1, 1),
+  nome VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE Cliente (
+  id_cliente INT PRIMARY KEY IDENTITY(1, 1),
+  nome VARCHAR(100) NOT NULL,
+  nif VARCHAR(20) NOT NULL,
+  data_nasc DATE,
+  morada VARCHAR(100),
+  id_role INT,
+  CONSTRAINT FK_Tipo_Cliente FOREIGN KEY (id_role) REFERENCES Tipo_Cliente (id_role)
+);
+
+CREATE TABLE Condutor (
+id_condutor INT PRIMARY KEY IDENTITY (1,1),
+nome VARCHAR (100),
+morada VARCHAR (100),
+cc VARCHAR (20),
+nr_cartaCondu VARCHAR (20),
+data_inicio_carta DATE,
+data_nasc DATE
+);
+
+CREATE TABLE Marca (
+  id_marca INT PRIMARY KEY IDENTITY (1,1)
+  nome VARCHAR(100) 
+);
+
+CREATE TABLE Modelo (
+  id_modelo INT PRIMARY KEY IDENTITY (1,1)
+  nome VARCHAR(100),
+  id_marca INT NOT NULL,
+  CONSTRAINT FK_Modelo_Marca FOREIGN KEY (id_marca) REFERENCES Marca(id_marca)
+);
+
+CREATE TABLE Veiculo (
+id_veiculo INT PRIMARY KEY IDENTITY (1,1),
+   matricula VARCHAR(100) PRIMARY KEY CHECK (
+     matricula LIKE '[0-9][0-9]-[0-9][0-9]-[A-Z][A-Z]' OR
+     matricula LIKE '[0-9][0-9]-[A-Z][A-Z]-[0-9][0-9]' OR
+     matricula LIKE '[A-Z][A-Z]-[0-9][0-9]-[0-9][0-9]'
+   ),
+  id_marca INT,
+  id_modelo INT NOT NULL,
+  cor VARCHAR(100) NOT NULL,
+  ano_fabrico INT CHECK (ano_fabrico BETWEEN 1900 AND YEAR(GETDATE())),
+  n_lugares INT,
+  estado BIT NOT NULL,
+  preco_dia DECIMAL,
+  CONSTRAINT FK_Veiculo_Modelo FOREIGN KEY (id_modelo) REFERENCES Modelo(id_modelo)
+  CONSTRAINT CK_Veiculo_Marca FOREIGN KEY (id_marca) REFERENCES Marca (id_marca)
+);
+
+-- Até aqui esta criado
+
+
+CREATE TABLE Reparacao (
+    id_reparacao INT IDENTITY (1,1) PRIMARY KEY,
+    custo DECIMAL,
+    data_inicio DATE NOT NULL,
+    data_fim DATE,
+    id_veiculo INT NOT NULL,
+    CONSTRAINT FK_id_veiculo_reparacao FOREIGN KEY (id_veiculo) REFERENCES Veiculo (id_veiculo)
+);
+
+CREATE TABLE Tipo_Seguro (
+    id INT IDENTITY (1,1) PRIMARY KEY,
+    nome VARCHAR (100) NOT NULL
+);
+
+CREATE TABLE Seguro (
+    id_seguro INT IDENTITY (1,1) PRIMARY KEY,
+    tipo_seguro INT NOT NULL,
+    valor DECIMAL NOT NULL,
+	CONSTRAINT FK_Seguro_Tipo_Seguro FOREIGN KEY (tipo_seguro) REFERENCES Tipo_Seguro (id)
+);
+
+CREATE TABLE Pagamento (
+    id_pagamento INT IDENTITY (1,1) PRIMARY KEY,
+    tipo_pagamento VARCHAR(100)
+);
+
+CREATE TABLE Aluguer (
+    id_reserva INT IDENTITY (1,1) PRIMARY KEY,
+    id_seguro INT NOT NULL,
+    id_veiculo INT NOT NULL,
+    id_cliente INT NOT NULL,
+    data_inicio DATETIME NOT NULL,
+    data_fim DATETIME NOT NULL,
+    valor DECIMAL NOT NULL,
+    id_condutor INT NOT NULL,
+    qnt_deposito DECIMAL NOT NULL,
+    custo_repa DECIMAL,
+    local_entrega VARCHAR(100) NOT NULL,
+	CONSTRAINT FK_Aluguer_Cliente FOREIGN KEY (id_cliente) REFERENCES Cliente (id_cliente),
+    CONSTRAINT FK_Aluguer_Seguro FOREIGN KEY (id_seguro) REFERENCES Seguro (id_seguro),
+    CONSTRAINT FK_Aluguer_Veiculo FOREIGN KEY (id_veiculo) REFERENCES Veiculo (id_veiculo),
+    CONSTRAINT FK_Aluguer_Condutor FOREIGN KEY (id_condutor) REFERENCES Condutor (id_condutor)
+);
+
+CREATE TABLE Fatura (
+    id_fatura INT IDENTITY (1,1) PRIMARY KEY,
+    id_reserva INT NOT NULL,
+    id_utilizador INT NOT NULL,
+    custo_adc DECIMAL,
+    id_pagamento INT NOT NULL,
+    CONSTRAINT FK_Fatura_Reserva FOREIGN KEY (id_reserva) REFERENCES Aluguer (id_reserva),
+    CONSTRAINT FK_Fatura_Utilizador FOREIGN KEY (id_utilizador) REFERENCES Utilizador (id_util),
+    CONSTRAINT FK_Fatura_Pagamento FOREIGN KEY (id_pagamento) REFERENCES Pagamento (id_pagamento)
+);
+
+CREATE TABLE Recibo (
+    id_recibo INT IDENTITY (1,1) PRIMARY KEY,
+    fatura INT,
+    data_pagamento DATE,
+    CONSTRAINT CK_Fatura_Recibo FOREIGN KEY (fatura) REFERENCES Fatura (id_fatura)
+);
+
+CREATE TABLE Conta_Corrente (
+    id_deposito INT IDENTITY (1,1) PRIMARY KEY,
+    id_cliente INT NOT NULL,
+    deposito DECIMAL,
+    data_deposito DATE,
+    CONSTRAINT CK_Conta_Cliente FOREIGN KEY (id_cliente) REFERENCES Cliente (id_cliente)
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

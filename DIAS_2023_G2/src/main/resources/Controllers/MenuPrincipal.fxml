@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ControllerMenuPrincipal">
+   <children>
+      <MenuBar>
+        <menus>
+          <Menu fx:id="MenuItemRegisto" mnemonicParsing="false" text="Registo">
+            <items>
+              <MenuItem fx:id="MenuItemRegistoClientes" mnemonicParsing="false" onAction="#handleMenuItemRegistoClientes" text="Clientes" />
+                  <MenuItem fx:id="MenuItemRegistoVeiculos" mnemonicParsing="false" onAction="#handleMenuIntemRegistoVeiculos" text="Veículos" />
+                  <MenuItem fx:id="MenuItemRegistoFuncionarios" mnemonicParsing="false" onAction="#handleMenuIntemRegistoFuncionarios" text="Funcionários" />
+                  <MenuItem fx:id="MenuItemRegistoCondutores" mnemonicParsing="false" onAction="#handleMenuRegistoCondutores" text="Condutores" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Reservas">
+            <items>
+              <MenuItem mnemonicParsing="false" onAction="#handleMenuReservasVeiculos" text="Veículos" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Devolução ">
+            <items>
+              <MenuItem fx:id="menuItemDevVeiculos" mnemonicParsing="false" onAction="#handleMenuDevolucao" text="Veículos" />
+            </items>
+          </Menu>
+            <Menu fx:id="MenuItemRegisto1" mnemonicParsing="false" text="Reparação">
+               <items>
+                  <MenuItem fx:id="MenuItemRepacaoVeiculos" mnemonicParsing="false" onAction="#handleMenuItemRegistoReparacao" text="Veículos" />
+               </items>
+            </Menu>
+            <Menu fx:id="menuItemPrecos" mnemonicParsing="false" text="Preços">
+               <items>
+                  <MenuItem fx:id="veiculosPorDia" mnemonicParsing="false" onAction="#handleMenuPrecoVeiculo" text="Veículos" />
+                  <MenuItem fx:id="tabelaSeguros" mnemonicParsing="false" text="Seguros" />
+               </items>
+            </Menu>
+        </menus>
+      </MenuBar>
+      <AnchorPane fx:id="anchorPane" prefHeight="429.0" prefWidth="600.0" />
+   </children>
+</VBox>
